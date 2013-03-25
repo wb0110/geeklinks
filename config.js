@@ -1,7 +1,7 @@
-var config = {
+var env = {
 	GITHUB: {
-		username: "USERNAME",
-		password: "PASSWORD"
+		"USERNAME": "USERNAME",
+		"PASSWORD": "PASSWORD"
 	} 
 }
-exports.config = config;
+exports.env = env;
