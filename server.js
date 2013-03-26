@@ -24,24 +24,26 @@ var main = function(){
 		remaining = res.headers['x-ratelimit-remaining'];
 		console.log('X-RateLimit-Remaining: ' + remaining);
 		next = res.headers['link'].substr(43, res.headers['link'].indexOf('>') - 43);
-		console.log(next);
 		remaining = parseInt(remaining);
-		console.log('HEADERS: ');
 		res.setEncoding('utf8');
 		res.on('data', function (chunk) {
 			data += chunk;
 		});
 		res.on('end', function(){
-			console.log('Response finished.');
+			console.log('Response finished. Next: ' + next);
 			data = JSON.parse(data);
 			couch.addNewDoc(data, next, _addNext);
 		});
 		function _addNext(){
-			// User TRACKER...
-			httpRequest.path = '/repositories?since=' + next;
-			if (parseInt(remaining) > 100) main();
-			else setTimeout(, 4200000);
+			httpRequest.path = '/repositories';
+			if (parseInt(next)) httpRequest.path += ('?since=' + next);
+			var time = parseInt(remaining) > 100 ? 0 : 4200000;
+			setTimout(function(){
+				main();
+			}, time);
+
 		};
 	}).end();
 };
 main();
+//couch.uuids(5);
