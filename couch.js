@@ -29,9 +29,8 @@ var addNewDoc = function(data, lastFetchInThisRound, callback) {
 	console.log('Begining to creates '+data.length+' documents...');
 	for (var i = 0; i < data.length; ++i) {
 		var doc = data[i], id = data[i]['id'];
-		couchNewDocRequest.path = '/test/' + id;
+		couchNewDocRequest.path = '/github_repos/' + id;
 		doc = JSON.stringify(doc);
-		console.log('id: ' + id);
 		var req = http.request(couchNewDocRequest, function(res){
 			res.setEncoding('utf8');
 			res.on('data', function(chunk){});
@@ -40,7 +39,6 @@ var addNewDoc = function(data, lastFetchInThisRound, callback) {
 				if (id == lastFetchInThisRound) {
 					addNextFetch(lastFetchInThisRound, callback);
 				};
-				console.log('Finish adding to DB.');
 			});
 		});
 		req.write(doc);
@@ -53,12 +51,14 @@ var addNextFetch = (function() {
 	console.log('Adding the id of next item to be fetch to the fetch_next_repo database.');
 	var count = 1;
 	return function(next, callback){
-		nextFetchRequest.path = ('/fetch_next_repo/' += next);
+		nextFetchRequest.path = '/fetch_next_repo/' + next;
 		var doc = {count: count++};
 		doc = JSON.stringify(doc);
 		var req = http.request(nextFetchRequest, function(res){
 			res.on ('data', function(){});
-			res.on('end', callback);
+			res.on('end', function(){
+				callback();
+			});
 		});
 		req.write(doc);
 		req.end();
