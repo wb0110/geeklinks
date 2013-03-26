@@ -3,15 +3,24 @@ var http = require('http'),
 		hostname: '127.0.0.1',
 		port: 5984, 
 		method: 'PUT'
-	}, uuidRequest = {
+	}, nextFetchRequest = {
 		hostname: '127.0.0.1',
 		port: 5984, 
-		method: 'GET'
+		method: 'PUT'
 	};
 
-var uuids = function(callback) {
-	http.get('http://127.0.0.1:5984/_uuids', function(){
-		callback();
+var uuids = function(count, callback) {
+	var path = 'http://127.0.0.1:5984/_uuids';
+	if (count && count > 1) path += '?count=' + count;
+	http.get(path, function(res){
+		var data = '';
+		res.on('data', function(chunk){
+			data += chunk;
+		});
+		res.on('end', function(){
+			data = JSON.parse(data);
+			if (callback && typeof callback === 'function') callback(data);
+		});
 	});
 };
 
@@ -38,3 +47,4 @@ var addNewDoc = function(data, next, callback) {
 };
 
 exports.addNewDoc = addNewDoc;
+exports.uuids = uuids;
