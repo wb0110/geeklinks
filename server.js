@@ -4,10 +4,10 @@ var https = require('https'),
 	u = config.env.GITHUB.USERNAME,
 	p = config.env.GITHUB.PASSWORD;
 
-var options = {
+var httpRequest = {
 	hostname: 'api.github.com', 
 	method: 'GET',
-	path: '/repositories', 
+	path: '/repositories', //since=800
 	// '/legacy/users/search/location?canada', 
 	//'/users/doobio/repos?type=owner',
 	// path: '/legacy/repos/search/canada',
@@ -17,7 +17,7 @@ var options = {
 };
 
 var main = function(){
-	var req = https.request(options, function(res) {
+	var req = https.request(httpRequest, function(res) {
 		var data = '', remaining, next;
 		console.log('STATUS: ' + res.statusCode);
 		console.log('X-RateLimit-Limit: ' + JSON.stringify(res.headers['x-ratelimit-limit']));
@@ -34,10 +34,13 @@ var main = function(){
 		res.on('end', function(){
 			console.log('Response finished.');
 			data = JSON.parse(data);
-			couch.addNewDoc(data, _addNext);
+			couch.addNewDoc(data, next, _addNext);
 		});
 		function _addNext(){
-
+			// User TRACKER...
+			httpRequest.path = '/repositories?since=' + next;
+			if (parseInt(remaining) > 100) main();
+			else setTimeout(, 4200000);
 		};
 	}).end();
 };
