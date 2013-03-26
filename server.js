@@ -16,20 +16,29 @@ var options = {
 	}
 };
 
-var req = https.request(options, function(res) {
-	var data = '';
-	console.log('STATUS: ' + res.statusCode);
-	console.log('X-RateLimit-Limit: ' + JSON.stringify(res.headers['x-ratelimit-limit']));
-	console.log('X-RateLimit-Remaining: ' + JSON.stringify(res.headers['x-ratelimit-remaining']));
-	console.log('HEADERS: ');
-	next = findNext(res.headers['link']);
-	res.setEncoding('utf8');
-	res.on('data', function (chunk) {
-		data += chunk;
-	});
-	res.on('end', function(){
-		console.log('Response finished.');
-		data = JSON.parse(data);
-		couch.addNewDoc(data, addNext);
-	});
-}).end();
+var main = function(){
+	var req = https.request(options, function(res) {
+		var data = '', remaining, next;
+		console.log('STATUS: ' + res.statusCode);
+		console.log('X-RateLimit-Limit: ' + JSON.stringify(res.headers['x-ratelimit-limit']));
+		remaining = res.headers['x-ratelimit-remaining'];
+		console.log('X-RateLimit-Remaining: ' + remaining);
+		next = res.headers['link'].substr(43, res.headers['link'].indexOf('>') - 43);
+		console.log(next);
+		remaining = parseInt(remaining);
+		console.log('HEADERS: ');
+		res.setEncoding('utf8');
+		res.on('data', function (chunk) {
+			data += chunk;
+		});
+		res.on('end', function(){
+			console.log('Response finished.');
+			data = JSON.parse(data);
+			couch.addNewDoc(data, _addNext);
+		});
+		function _addNext(){
+
+		};
+	}).end();
+};
+main();
