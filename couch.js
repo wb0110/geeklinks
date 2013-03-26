@@ -1,19 +1,27 @@
 var http = require('http'),
 	couchNewDoc = {
 		hostname: '127.0.0.1',
-		port: 5984 
-		method: 'put',
-		path: '/test'
+		port: 5984, 
+		method: 'PUT'
 	};
 
 // Accepts a JSON array of 100 objects and add them the database.
-var addNewDoc = function(data, couchNewDoc) {
+var addNewDoc = function(data) {
 	for (var i = 0; i < data.length; ++i) {
-		var doc = data[i], id = doc['id'];
-		couchNewDoc.path += '/' + id;
+		var doc = data[i], id = data[i]['id'];
+		couchNewDoc.path = '/test/' + id;
 		doc = JSON.stringify(doc);
-		var req = http.request();
-		req.write(doc);
-		req.end();
+		// console.log(id);
+		// var req = http.request(couchNewDoc, function(res){
+		// 	res.setEncoding('utf8');
+		// 	res.on('data', function(chunk){
+		// 		console.log(chunk);
+		// 		// Go back to the requestor and call for the next 100 objects. 
+		// 	});
+		// });
+		// req.write(doc);
+		// req.end();
 	}
 };
+
+exports.addNewDoc = addNewDoc;
