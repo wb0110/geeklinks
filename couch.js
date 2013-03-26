@@ -38,7 +38,7 @@ var addNewDoc = function(data, lastFetchInThisRound, callback) {
 			// data is the result of PUT request from CouchDB.
 			res.on('end', function(){
 				if (id == lastFetchInThisRound) {
-					callback(lastFetchInThisRound, callback)
+					addNextFetch(lastFetchInThisRound, callback);
 				};
 				console.log('Finish adding to DB.');
 			});
@@ -47,6 +47,9 @@ var addNewDoc = function(data, lastFetchInThisRound, callback) {
 		req.end();
 	}
 };
+
+// Adds the id of the next item to fetched.
+var addNextFetch = function(next, callback) {};
 
 exports.addNewDoc = addNewDoc;
 exports.uuids = uuids;
