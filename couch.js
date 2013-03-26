@@ -49,7 +49,21 @@ var addNewDoc = function(data, lastFetchInThisRound, callback) {
 };
 
 // Adds the id of the next item to fetched.
-var addNextFetch = function(next, callback) {};
+var addNextFetch = (function() {
+	console.log('Adding the id of next item to be fetch to the fetch_next_repo database.');
+	var count = 1;
+	return function(next, callback){
+		nextFetchRequest.path = ('/fetch_next_repo/' += next);
+		var doc = {count: count++};
+		doc = JSON.stringify(doc);
+		var req = http.request(nextFetchRequest, function(res){
+			res.on ('data', function(){});
+			res.on('end', callback);
+		});
+		req.write(doc);
+		req.end();
+	}
+}());
 
 exports.addNewDoc = addNewDoc;
 exports.uuids = uuids;
