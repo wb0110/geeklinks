@@ -5,3 +5,15 @@ var http = require('http'),
 		method: 'put',
 		path: '/test'
 	};
+
+// Accepts a JSON array of 100 objects and add them the database.
+var addNewDoc = function(data, couchNewDoc) {
+	for (var i = 0; i < data.length; ++i) {
+		var doc = data[i], id = doc['id'];
+		couchNewDoc.path += '/' + id;
+		doc = JSON.stringify(doc);
+		var req = http.request();
+		req.write(doc);
+		req.end();
+	}
+};
