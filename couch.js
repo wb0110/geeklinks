@@ -28,15 +28,18 @@ var uuids = function(count, callback) {
 var addNewDoc = function(data, lastFetchInThisRound, callback) {
 	console.log('Begining to creates '+data.length+' documents...');
 	for (var i = 0; i < data.length; ++i) {
-		var doc = data[i], id = data[i]['id'];
+		var couchResonse, doc = data[i], id = data[i]['id'];
 		couchNewDocRequest.path = '/github_repos/' + id;
 		doc = JSON.stringify(doc);
 		var req = http.request(couchNewDocRequest, function(res){
 			res.setEncoding('utf8');
-			res.on('data', function(chunk){});
+			res.on('data', function(chunk){
+				couchResonse = chunk;				
+			});
 			// data is the result of PUT request from CouchDB.
 			res.on('end', function(){
-				if (id == lastFetchInThisRound) {
+				couchResonse = JSON.parse(couchResonse);
+				if (parseInt(couchResonse['id']) == lastFetchInThisRound) {
 					addNextFetch(lastFetchInThisRound, callback);
 				};
 			});
