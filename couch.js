@@ -25,20 +25,22 @@ var uuids = function(count, callback) {
 };
 
 // Accepts a JSON array of 100 objects and add them the database.
-var addNewDoc = function(data, next, callback) {
+var addNewDoc = function(data, lastFetchInThisRound, callback) {
+	console.log('Begining to creates '+data.length+' documents...');
 	for (var i = 0; i < data.length; ++i) {
 		var doc = data[i], id = data[i]['id'];
 		couchNewDocRequest.path = '/test/' + id;
 		doc = JSON.stringify(doc);
-		// console.log(id);
+		console.log('id: ' + id);
 		var req = http.request(couchNewDocRequest, function(res){
 			res.setEncoding('utf8');
-			res.on('data', function(chunk){
-				console.log(chunk);
-				// Go back to the requestor and call for the next 100 objects. 
-			});
+			res.on('data', function(chunk){});
+			// data is the result of PUT request from CouchDB.
 			res.on('end', function(){
-				if (id == next) addNewTracker(next, callback);
+				if (id == lastFetchInThisRound) {
+					callback(lastFetchInThisRound, callback)
+				};
+				console.log('Finish adding to DB.');
 			});
 		});
 		req.write(doc);
