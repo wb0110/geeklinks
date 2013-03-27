@@ -1,6 +1,6 @@
 var https = require('https'),
 	config = require('./config.js'),
-	couch = require('./couch.js'),
+	couch = require('./couch/couch.js'),
 	u = config.env.GITHUB.USERNAME,
 	p = config.env.GITHUB.PASSWORD, 
 	benchmark;
