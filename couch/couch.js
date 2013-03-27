@@ -71,10 +71,7 @@ var addNextFetch = (function() {
 // Create views for the provided db(s). arguments format: [{db: 'db', views: [views]}]
 var createView = function(views){
 	for (var i = 0; i < views.length; ++i) {
-		couchPOST.path = '/' + views[i]['db'] + '';
-		couchPOST.headers = {
-			'content-type': 'application/json'
-		};
+		couchPUT.path = '/' + views[i]['db'] + '/_design';
 	}
 };
 
