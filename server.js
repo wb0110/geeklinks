@@ -2,7 +2,8 @@ var https = require('https'),
 	config = require('./config.js'),
 	couch = require('./couch.js'),
 	u = config.env.GITHUB.USERNAME,
-	p = config.env.GITHUB.PASSWORD;
+	p = config.env.GITHUB.PASSWORD, 
+	benchmark;
 
 var httpRequest = {
 	hostname: 'api.github.com', 
@@ -23,7 +24,7 @@ var main = function(){
 		console.log('X-RateLimit-Limit: ' + JSON.stringify(res.headers['x-ratelimit-limit']));
 		remaining = res.headers['x-ratelimit-remaining'];
 		console.log('X-RateLimit-Remaining: ' + remaining);
-		next = res.headers['link'].substr(43, res.headers['link'].indexOf('>') - 43);
+		next = res.headers['link'].substr(43, res.headers['link'].indexOf('>') - 43) || null;
 		remaining = parseInt(remaining);
 		res.setEncoding('utf8');
 		res.on('data', function (chunk) {
@@ -36,14 +37,27 @@ var main = function(){
 		});
 		function _addNext(){
 			httpRequest.path = '/repositories';
-			if (parseInt(next)) httpRequest.path += ('?since=' + next);
+			if (next && parseInt(next)) httpRequest.path += ('?since=' + next);
+			else {
+				operationFinished();
+				return;
+			}
 			var time = parseInt(remaining) > 100 ? 0 : 4200000;
-			setTimout(function(){
-				main();
-			}, time);
+			console.log(httpRequest.path);
+			console.log(parseInt(remaining));
+			console.log(time);
+			if (time ==0) main();
+			//setTimeout(function(){
+				//main();
+			//}, time);
 
 		};
 	}).end();
 };
+benchmark = new Date().getTime();
 main();
 //couch.uuids(5);
+var operationFinished = function(){
+	var now = new Date().getTime();
+	console.log('Operation is now finished. It took %s secods. Thanks! :)', (now - benchmark) / 1000);
+};
