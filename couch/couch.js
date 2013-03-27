@@ -1,12 +1,12 @@
 var http = require('http'),
-	couchNewDocRequest = {
-		hostname: '127.0.0.1',
+	couchPUT = {
+		hostname: 'http://127.0.0.1',
 		port: 5984, 
 		method: 'PUT'
-	}, nextFetchRequest = {
-		hostname: '127.0.0.1',
+	}, couchPOST = {
+		hostname: 'http://127.0.0.1',
 		port: 5984, 
-		method: 'PUT'
+		method: 'POST'
 	};
 
 var uuids = function(count, callback) {
@@ -29,9 +29,9 @@ var addNewDoc = function(data, lastFetchInThisRound, callback) {
 	console.log('Begining to creates '+data.length+' documents...');
 	for (var i = 0; i < data.length; ++i) {
 		var couchResonse, doc = data[i], id = data[i]['id'];
-		couchNewDocRequest.path = '/github_repos/' + id;
+		couchPUT.path = '/github_repos/' + id;
 		doc = JSON.stringify(doc);
-		var req = http.request(couchNewDocRequest, function(res){
+		var req = http.request(couchPUT, function(res){
 			res.setEncoding('utf8');
 			res.on('data', function(chunk){
 				couchResonse = chunk;				
@@ -54,10 +54,10 @@ var addNextFetch = (function() {
 	console.log('Adding the id of next item to be fetch to the fetch_next_repo database.');
 	var count = 1;
 	return function(next, callback){
-		nextFetchRequest.path = '/fetch_next_repo/' + next;
+		couchPUT.path = '/fetch_next_repo/' + next;
 		var doc = {count: count++};
 		doc = JSON.stringify(doc);
-		var req = http.request(nextFetchRequest, function(res){
+		var req = http.request(couchPUT, function(res){
 			res.on ('data', function(){});
 			res.on('end', function(){
 				callback();
@@ -67,6 +67,16 @@ var addNextFetch = (function() {
 		req.end();
 	}
 }());
+
+// Create views for the provided db(s). arguments format: [{db: 'db', views: [views]}]
+var createView = function(views){
+	for (var i = 0; i < views.length; ++i) {
+		couchPOST.path = '/' + views[i]['db'] + '';
+		couchPOST.headers = {
+			'content-type': 'application/json'
+		};
+	}
+};
 
 exports.addNewDoc = addNewDoc;
 exports.uuids = uuids;
