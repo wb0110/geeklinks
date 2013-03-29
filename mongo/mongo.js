@@ -3,13 +3,19 @@ var mongo = (function(){
 	var mongodb = require("mongodb"),
 		srv = new mongodb.Server('127.0.0.1', 27017);
 
-	var max = function(dbName, callback) {
+	var max = function(dbName, collectionName, callback) {
 		if (!dbName) {
 			if (!callback) throw 'mongo.max: Invalid Database Name.';
 			else callback('mongo.max: Invalid Database Name.', null);
 			return;
 		} 
+		if (!collectionName) {
+			if (!callback) throw 'mongo.max: Invalid Collection Name.';
+			else callback('mongo.max: Invalid Collection Name.', null);
+			return;
+		}
 		if (!callback) return;
+		find(dbName, collectionName, {MAX}, callback);
 
 	}
 	var find = function(dbName, collectionName, query, callback) {
@@ -20,7 +26,7 @@ var mongo = (function(){
 		}
 		if (!collectionName) {
 			if (!callback) throw 'mongo.find: Invalid Collection Name.';
-			else callback('mongo.find: Collection Database Name.', null);
+			else callback('mongo.find: Invalid Collection Name.', null);
 			return;
 		}
 		if (!query) {
