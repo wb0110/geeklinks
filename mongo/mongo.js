@@ -3,51 +3,58 @@ var mongo = (function(){
 	var mongodb = require("mongodb"),
 		srv = new mongodb.Server('127.0.0.1', 27017);
 
-	var max = function(dbName, collectionName, callback) {
+	var maxID = function(dbName, collectionName, callback) {
 		if (!dbName) {
 			if (!callback) throw 'mongo.max: Invalid Database Name.';
-			else callback('mongo.max: Invalid Database Name.', null);
-			return;
+			else return callback('mongo.max: Invalid Database Name.', null);
 		} 
+		var connector = new mongodb.Db(dbName, srv);
 		if (!collectionName) {
 			if (!callback) throw 'mongo.max: Invalid Collection Name.';
-			else callback('mongo.max: Invalid Collection Name.', null);
-			return;
+			else return callback('mongo.max: Invalid Collection Name.', null);
 		}
 		if (!callback) return;
-		find(dbName, collectionName, {MAX}, callback);
+		connector.open(function(error, db){
+			if (error) throw error;
+			console.log('Connected to: ' + dbName);
+			db.collection(collectionName, function(error, collection){
+				if (error) throw error;
+				collection.find({}, function(error, result){
+					callback(error, result)
+				});
+				// c.nextObject(function(error, res){
+				// 	collection.find({'_id': res['_id']}, function(error, result){
+				// 		return callback(null, result);
+				// 	});
+				// });
+			});
+		});
 
 	}
 	var find = function(dbName, collectionName, query, callback) {
 		if (!dbName) {
 			if (!callback) throw 'mongo.find: Invalid Database Name.';
-			else callback('mongo.find: Invalid Database Name.', null);
-			return;
+			else return callback('mongo.find: Invalid Database Name.', null);
 		}
+		var connector = new mongodb.Db(dbName, srv);
 		if (!collectionName) {
 			if (!callback) throw 'mongo.find: Invalid Collection Name.';
-			else callback('mongo.find: Invalid Collection Name.', null);
-			return;
+			else return callback('mongo.find: Invalid Collection Name.', null);
 		}
 		if (!query) {
 			if (!callback)
 				throw 'mongo.find: Invalid Query.';
-			else callback('mongo.find: Invalid Query.', null);
-			return;
+			else return callback('mongo.find: Invalid Query.', null);
 		}
 		if (!callback) return;
 		connector.open(function(error, db){
-			var connector = new mongodb.Db(dbName, srv);
 			if (error) throw error;
 			console.log('Connected to: ' + dbName);
-			db.collection(collectionName, function(error, collection){
+			db.collection(collectionName, function(error, col){
 				if (error) throw error;
-				collection.find(query, function(error, cursor) {
-					if (error) {
-						callback(error, null);
-						return;
-					}
-					callback(null, cursor);
+				col.find(query, {'id' : true}, function(error, cursor) {
+					if (error) return callback(error, null);
+						return callback(null, cursor);
 				});
 			});
 		});
@@ -55,9 +62,22 @@ var mongo = (function(){
 
 	return {
 		find: find,
-		max: max
+		maxID: maxID
 	}
 }());
 
-
+mongo.maxID('github', 'test', function(error, max){
+	if (error) {console.log(error)};
+	console.log('Max value: ');
+	max.each(function(e, r){
+		console.log(r);
+	});
+});
+// mongo.find('github', 'test', {}, function(error, results){
+// 		if (error) {console.log(error)};
+// 	console.log('Result: ');
+// 	results.each(function(e, r){
+// 		console.log(r);
+// 	});
+// });
 exports.mongo = mongo;
