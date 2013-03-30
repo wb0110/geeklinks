@@ -53,7 +53,9 @@ var mongo = (function(){
 				if (error) throw error;
 				col.find(query, {'id' : true}, function(error, cursor) {
 					if (error) return callback(error, null);
-						return callback(null, cursor);
+					cursor.toArray(function(e, r){
+						return callback(null, r);
+					});
 				});
 			});
 		});
@@ -65,16 +67,14 @@ var mongo = (function(){
 	}
 }());
 //////	TESTS.
-mongo.maxID('github', 'test', function(error, max){
-	if (error) {console.log(error)};
-	console.log('Max value: ');
-	console.log(max);
-});
-// mongo.find('github', 'test', {}, function(error, results){
-// 		if (error) {console.log(error)};
-// 	console.log('Result: ');
-// 	results.each(function(e, r){
-// 		console.log(r);
-// 	});
+// mongo.maxID('github', 'test', function(error, max){
+// 	if (error) {console.log(error)};
+// 	console.log('Max value: ');
+// 	console.log(max);
 // });
+mongo.find('github', 'test', {}, function(error, results){
+		if (error) {console.log(error)};
+	console.log('Result: ');
+	console.log(results);
+});
 exports.mongo = mongo;
