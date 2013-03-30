@@ -5,16 +5,12 @@ var mongodb = require("mongodb"),
 connector.open(function(error, db){
 	if (error) throw error;
 	console.log('Connected to '+ db.databaseName +' database...');
-	db.collectionNames(function(error, collections){
-		console.log(collections)
+	db.collection('test', function(error, collection){
 		if (error) throw error;
-		var collection = null;
-		for (var i in collections)
-			if (collections[i]['name'] == 'github.test') collection = collections[i];
-		if (!collection)
-			db.createCollection("test", function(err, collection){
-				console.log('collection test was created successfully');
-				collection.insert({'id':'1'}, {'id':'2'}, {'id':'3'});
-			});
+		db.createCollection("test", function(err, collection){
+			console.log('collection test was created successfully');
+			collection.insert({'id':'2'});
+			collection.insert({'id':'3'});
+		});
 	});
 });
