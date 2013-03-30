@@ -19,14 +19,13 @@ var mongo = (function(){
 			console.log('Connected to: ' + dbName);
 			db.collection(collectionName, function(error, collection){
 				if (error) throw error;
-				collection.find({}, function(error, result){
-					callback(error, result)
-				});
-				// c.nextObject(function(error, res){
-				// 	collection.find({'_id': res['_id']}, function(error, result){
-				// 		return callback(null, result);
-				// 	});
+				var c = collection.find().sort({'id': -1}).limit(1);
+				// {}, function(error, result){
+				// 	callback(error, result)
 				// });
+				c.nextObject(function(error, res){
+					callback(error, res);
+				});
 			});
 		});
 
@@ -65,13 +64,11 @@ var mongo = (function(){
 		maxID: maxID
 	}
 }());
-
+//////	TESTS.
 mongo.maxID('github', 'test', function(error, max){
 	if (error) {console.log(error)};
 	console.log('Max value: ');
-	max.each(function(e, r){
-		console.log(r);
-	});
+	console.log(max);
 });
 // mongo.find('github', 'test', {}, function(error, results){
 // 		if (error) {console.log(error)};
