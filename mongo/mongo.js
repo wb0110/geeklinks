@@ -69,11 +69,11 @@ var mongo = (function(){
 	}
 }());
 //////	TESTS.
-mongo.max('github', 'repos_fetch_info', 'next', function(error, max){
-	assert.equal(error, null);	
-	console.log('Max value: ');
-	console.log(max);
-});
+// mongo.max('github', 'repos_fetch_info', 'next', function(error, max){
+// 	assert.equal(error, null);	
+// 	console.log('Max value: ');
+// 	console.log(max);
+// });
 // mongo.find('github', 'test', {}, function(error, results){
 // 		if (error) {console.log(error)};
 // 	console.log('Result: ');
