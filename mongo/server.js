@@ -18,26 +18,24 @@ app = {};
 
 
 (function(){
-	if (!config.env.GITHUB.next) config.env.GITHUB.next = 4;
 	console.log(config.env);
-
 }());
 var main = (function() {
 	var init = function(){
 		if (app.init) return;
-		// Read Next
 		app.init = true;
 		readNextFromDB(function(max){
-			max = max.next || null; 
+			if (max) max = max.next;
 				setNext(max, function(){
-					buildPath()
+					buildPath();
 				});
 		});
 	};
 	var readNextFromDB = function(callback) {
-		mongo.max('github', 'repos_fetch_info', 'next', function(err, max){
+		mongo.mongo.max('github', 'repos_fetch_info', 'next', function(err, max){
+			console.log(max);
 			assert.equal(err, null);
-			return callback(max.next);
+			return callback(max);
 		});
 	};
 	var setNext = function(next, callback) {
@@ -55,12 +53,4 @@ var main = (function() {
 	}
 }());
 
-var buildPath = function(callback) {
-
-	mongo.maxID('github', 'repo', {'id':-1}, function(err, result){
-		if (err) throw err;
-		if (result){
-
-		}
-	});
-};
+main.init();
