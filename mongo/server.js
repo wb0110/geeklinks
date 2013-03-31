@@ -21,9 +21,9 @@ var main = (function() {
 		app.init = true;
 		readNextFromDB(function(max){
 			if (max) max = max.next;
-			setNext(max, function(){
-				createPath(fetch);
-			});
+			setNext(max);
+			createPath();
+			fetch();
 		});
 	};
 	var readNextFromDB = function(callback) {
@@ -37,7 +37,8 @@ var main = (function() {
 		if (next && typeof next !== 'function') {
 			app.next = next;
 			app.hasNext = true;
-		} else if (!app.init) app.hasNext = false;
+		} else if (app.init) app.hasNext = true;
+		else app.hasNext = false;
 		if (callback && typeof callback === 'function') return callback();
 	}
 	var createPath = function(callback) {
@@ -64,33 +65,20 @@ var main = (function() {
 			res.on('end', function(){
 				console.log('Response finished. Next: ' + next);
 				data = JSON.parse(data);
-				couch.addNewDoc(data, next, _addNext);
 				mongo.create(app.db, app.collection, data, scheduleNextFetchRequest);
 			});
-			var scheduleNextFetchRequest = function(){
-				if (app.hasNext) {
-					createPath();
-					var time = parseInt(app.remaining) > 100 ? 0 : 4200000;
-					setTimeout(function(){
-						main.fetch();
-					}, time);
-				}
-				httpRequest.path = '/repositories';
-				if (next && parseInt(next)) httpRequest.path += ('?since=' + next);
-				else {
-					operationFinished();
-					return;
-				}
-				var time = parseInt(remaining) > 100 ? 0 : 4200000;
-				if (time ==0) main();
-				//setTimeout(function(){
-					//main();
-				//}, time);
-
-			};
 		}).end();
-
 	}
+	var scheduleNextFetchRequest = function(){
+		if (app.hasNext) {
+			createPath();
+			var time = parseInt(app.remaining) > 100 ? 0 : 4200000;
+			setTimeout(function(){
+				fetch();
+			}, time);
+		}
+		return;
+	};
 	return {
 		init: init
 	}
