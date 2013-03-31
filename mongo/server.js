@@ -27,17 +27,17 @@ var main = (function() {
 		if (app.init) return;
 		// Read Next
 		app.init = true;
-		readNextFromDB(function(){
-			setNext(function(){
-				buildPath()
-			})
+		readNextFromDB(function(max){
+			max = max.next || null; 
+				setNext(max, function(){
+					buildPath()
+				});
 		});
 	};
 	var readNextFromDB = function(callback) {
 		mongo.max('github', 'repos_fetch_info', 'next', function(err, max){
 			assert.equal(err, null);
-			if (max && max.next) return callback(max.next);
-			return callback();
+			return callback(max.next);
 		});
 	};
 	var setNext = function(next, callback) {
@@ -47,6 +47,9 @@ var main = (function() {
 		} else app.hasNext = false;
 		if (callback && typeof callback === 'function') return callback();
 	}
+	var buildPath = function() {
+		console.log(app);
+	};
 	return {
 		init: init
 	}
