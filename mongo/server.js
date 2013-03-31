@@ -11,9 +11,9 @@ httpRequest = {
 	path: '/repositories',
 	headers : {'Authorization': 'Basic ' + new Buffer(u + ':' + p).toString('base64')}
 }; app = {
-	app.db: 'github',
-	app.fechInfoCollectionName: 'repos_fetch_info',
-	app.collection:  'repos'
+	db: 'github',
+	fechInfoCollectionName: 'repos_fetch_info',
+	collection:  'repos'
 };
 var main = (function() {
 	var init = function(){
@@ -27,7 +27,7 @@ var main = (function() {
 		});
 	};
 	var readNextFromDB = function(callback) {
-		mongo.mongo.max(app.db, app.fechInfoCollectionName, 'next', function(err, max){
+		mongo.db.max(app.db, app.fechInfoCollectionName, 'next', function(err, max){
 			console.log(max);
 			assert.equal(err, null);
 			return callback(max);
@@ -44,18 +44,19 @@ var main = (function() {
 	var createPath = function(callback) {
 		if (!app.hasNext) return; 
 		if (!app.next) httpRequest.path = '/repositories';
-		else httpRequest.path = '/repositories/since?next=' + app.next; 
+		else httpRequest.path = '/repositories?since=' + app.next; 
 		if (callback) return callback();
 	};
 	var fetch = function() {
 		var req = https.request(httpRequest, function(res) {
 			app.init = false;
-			var data = '', next;
+			var data = '', next = null;
 			console.log('STATUS: ' + res.statusCode);
 			console.log('X-RateLimit-Limit: ' + JSON.stringify(res.headers['x-ratelimit-limit']));
 			remaining = res.headers['x-ratelimit-remaining'];
 			console.log('X-RateLimit-Remaining: ' + remaining);
-			next = res.headers['link'].substr(43, res.headers['link'].indexOf('>') - 43);
+			if (res.headers['link']) 
+				next = res.headers['link'].substr(43, res.headers['link'].indexOf('>') - 43);
 			setNext(next);
 			app.remaining = parseInt(remaining);
 			res.setEncoding('utf8');
@@ -65,17 +66,24 @@ var main = (function() {
 			res.on('end', function(){
 				console.log('Response finished. Next: ' + next);
 				data = JSON.parse(data);
-				mongo.create(app.db, app.collection, data, scheduleNextFetchRequest);
+				mongo.db.create(app.db, app.collection, data, scheduleNextFetchRequest);
+				});
 			});
 		}).end();
 	}
 	var scheduleNextFetchRequest = function(){
 		if (app.hasNext) {
-			createPath();
-			var time = parseInt(app.remaining) > 100 ? 0 : 4200000;
-			setTimeout(function(){
-				fetch();
-			}, time);
+			mongo.db.create(app.db, app.fechInfoCollectionName, {
+				next: app.next,
+				timestamp: new Date().getTime()
+			}, 
+			function(){
+				createPath();
+				var time = parseInt(app.remaining) > 100 ? 0 : 4200000;
+				setTimeout(function(){
+					fetch();
+				}, time);	
+			}
 		}
 		return;
 	};
