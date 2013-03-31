@@ -1,9 +1,8 @@
-var assert = require('assert');
+var assert = require('assert'),
+	mongodb = require("mongodb");
 var mongo = (function(){
-	var mongodb = require("mongodb"),
-		srv = new mongodb.Server('127.0.0.1', 27017);
-
 	var max = function(dbName, collectionName, field, callback) {
+		srv = new mongodb.Server('127.0.0.1', 27017);
 		if (!dbName) {
 			if (!callback) throw 'mongo.max: Invalid Database Name.';
 			else return callback('mongo.max: Invalid Database Name.', null);
@@ -37,6 +36,7 @@ var mongo = (function(){
 
 	}
 	var find = function(dbName, collectionName, query, callback) {
+		srv = new mongodb.Server('127.0.0.1', 27017);
 		if (!dbName) {
 			if (!callback) throw 'mongo.find: Invalid Database Name.';
 			else return callback('mongo.find: Invalid Database Name.', null);
@@ -72,7 +72,7 @@ var mongo = (function(){
 	}
 }());
 //////	TESTS.
-mongo.max('github', 'test', 'id', function(error, max){
+mongo.max('github', 'repos_fetch_info', 'next', function(error, max){
 	assert.equal(error, null);	
 	console.log('Max value: ');
 	console.log(max);
