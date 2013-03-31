@@ -3,7 +3,7 @@ var mongo = (function(){
 	var mongodb = require("mongodb"),
 		srv = new mongodb.Server('127.0.0.1', 27017);
 
-	var maxID = function(dbName, collectionName, callback) {
+	var maxID = function(dbName, collectionName, field, callback) {
 		if (!dbName) {
 			if (!callback) throw 'mongo.max: Invalid Database Name.';
 			else return callback('mongo.max: Invalid Database Name.', null);
@@ -19,7 +19,7 @@ var mongo = (function(){
 			console.log('Connected to: ' + dbName);
 			db.collection(collectionName, function(error, collection){
 				if (error) throw error;
-				var c = collection.find().sort({'id': -1}).limit(1);
+				var c = collection.find().sort(field).limit(1);
 				// {}, function(error, result){
 				// 	callback(error, result)
 				// });
@@ -60,21 +60,20 @@ var mongo = (function(){
 			});
 		});
 	}
-
 	return {
 		find: find,
 		maxID: maxID
 	}
 }());
 //////	TESTS.
-// mongo.maxID('github', 'test', function(error, max){
-// 	if (error) {console.log(error)};
-// 	console.log('Max value: ');
-// 	console.log(max);
-// });
-mongo.find('github', 'test', {}, function(error, results){
-		if (error) {console.log(error)};
-	console.log('Result: ');
-	console.log(results);
+mongo.maxID('github', 'test', {'id': -1}, function(error, max){
+	if (error) {console.log(error)};
+	console.log('Max value: ');
+	console.log(max);
 });
+// mongo.find('github', 'test', {}, function(error, results){
+// 		if (error) {console.log(error)};
+// 	console.log('Result: ');
+// 	console.log(results);
+// });
 exports.mongo = mongo;
