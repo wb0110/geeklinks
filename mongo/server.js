@@ -22,11 +22,14 @@ var main = (function() {
 	var init = function(){
 		if (app.init) return;
 		app.init = true;
-		readNextFromDB(function(max){
-			if (max) max = max.next;
-				setNext(max, function(){
-					createPath(fetch);
-				});
+		// readNextFromDB(function(max){
+		// 	if (max) max = max.next;
+		// 		setNext(max, function(){
+		// 			createPath(fetch);
+		// 		});
+		// });
+		setNext(4459, function(){
+			createPath(fetch);
 		});
 	};
 	var readNextFromDB = function(callback) {
@@ -45,9 +48,12 @@ var main = (function() {
 	}
 	var createPath = function(callback) {
 		if (!app.hasNext) httpRequest.path = '/repositories';
-		else httpRequest.path = '/repositories/since?next=' + next; 
+		else httpRequest.path = '/repositories/since?next=' + app.next; 
 		return callback();
 	};
+	var fetch = function() {
+		console.log(httpRequest);
+	}
 	return {
 		init: init
 	}
