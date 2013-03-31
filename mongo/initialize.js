@@ -5,13 +5,14 @@ var assert = require('assert'),
 
 var init = (function(){
 	var create = function(colName, objects){
+		if (!colName) return;
 		connector.open(function(error, db){
 			assert.equal(error, null);
 			console.log('Connected to '+ db.databaseName +' database...');
 			db.collection(colName, function(error, collection){
 				if (error) throw error;
 				db.createCollection(colName, function(err, collection){
-					console.log('collection test was created successfully');
+					console.log('collection '+colName+' was created successfully');
 					for (var i in objects) collection.insert(objects[i]);
 				});
 			});
@@ -30,5 +31,6 @@ var init = (function(){
 		drop: drop
 	}
 }());
+// init.create('repos_fetch_info');
 //init.drop('test');
 // init.create('test', [{'id':'1'}, {'id':'2'}, {'id':'3'}]);
