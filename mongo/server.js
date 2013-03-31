@@ -15,8 +15,6 @@ httpRequest = {
 };
 app = {};
 
-
-
 (function(){
 	console.log(config.env);
 }());
@@ -27,7 +25,7 @@ var main = (function() {
 		readNextFromDB(function(max){
 			if (max) max = max.next;
 				setNext(max, function(){
-					buildPath();
+					createPath(fetch);
 				});
 		});
 	};
@@ -45,8 +43,10 @@ var main = (function() {
 		} else app.hasNext = false;
 		if (callback && typeof callback === 'function') return callback();
 	}
-	var buildPath = function() {
-		console.log(app);
+	var createPath = function(callback) {
+		if (!app.hasNext) httpRequest.path = '/repositories';
+		else httpRequest.path = '/repositories/since?next=' + next; 
+		return callback();
 	};
 	return {
 		init: init
