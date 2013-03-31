@@ -13,13 +13,19 @@ var mongo = (function(){
 			if (!callback) throw 'mongo.max: Invalid Collection Name.';
 			else return callback('mongo.max: Invalid Collection Name.', null);
 		}
+		if (!field || typeof field != 'string') {
+			if (!callback) throw 'mongo.max: Invalid field.';
+			else return callback('mongo.max: Invalid field.', null);
+		}
+		var t = {};
+		t[field] = -1;
 		if (!callback) return;
 		connector.open(function(error, db){
 			if (error) throw error;
 			console.log('Connected to: ' + dbName);
 			db.collection(collectionName, function(error, collection){
-				assert.notEqual(error, null);
-				var c = collection.find().sort(field).limit(1);
+				assert.equal(error, null);
+				var c = collection.find().sort(t).limit(1);
 				// {}, function(error, result){
 				// 	callback(error, result)
 				// });
@@ -47,10 +53,10 @@ var mongo = (function(){
 		}
 		if (!callback) return;
 		connector.open(function(error, db){
-			assert.notEqual(error, null);
+			assert.equal(error, null);
 			console.log('Connected to: ' + dbName);
 			db.collection(collectionName, function(error, col){
-				assert.notEqual(error, null);
+				assert.equal(error, null);
 				col.find(query, {'id' : true}, function(error, cursor) {
 					if (error) return callback(error, null);
 					cursor.toArray(function(e, r){
@@ -66,8 +72,8 @@ var mongo = (function(){
 	}
 }());
 //////	TESTS.
-mongo.max('github', 'test', {'id': -1}, function(error, max){
-	assert.notEqual(error, null);	
+mongo.max('github', 'test', 'id', function(error, max){
+	assert.equal(error, null);	
 	console.log('Max value: ');
 	console.log(max);
 });
