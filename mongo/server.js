@@ -40,18 +40,12 @@ var main = (function() {
 			return callback();
 		});
 	};
-	var setNext = function(next) {
-		if (next) {
+	var setNext = function(next, callback) {
+		if (next && typeof next !== 'function') {
 			app.next = next;
 			app.hasNext = true;
-		}
-		if (arguments.length >= 2) {
-			if (arguments[1] && arguments[1].next) {
-				ap.next = arguments[1].next;
-				app.hasNext = true;
-			} else app.hasNext = false;
-		}
-
+		} else app.hasNext = false;
+		if (callback && typeof callback === 'function') return callback();
 	}
 	return {
 		init: init
