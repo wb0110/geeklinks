@@ -1,11 +1,12 @@
-var mongodb = require("mongodb"),
-    srv = new mongodb.Server('127.0.0.1', 27017),
-    connector = new mongodb.Db('github', srv);
+var assert = require('assert'), 
+	mongodb = require("mongodb"),
+   srv = new mongodb.Server('127.0.0.1', 27017),
+   connector = new mongodb.Db('github', srv);
 
 var init = (function(){
 	var create = function(colName, objects){
 		connector.open(function(error, db){
-			if (error) throw error;
+			assert.equal(error, null);
 			console.log('Connected to '+ db.databaseName +' database...');
 			db.collection(colName, function(error, collection){
 				if (error) throw error;
@@ -18,7 +19,7 @@ var init = (function(){
 	};
 	var drop = function(colName){
 		connector.open(function(error, db){
-			if (error) throw error;
+			assert.equal(error, null);
 			db.dropCollection(colName, function(error, result){
 				console.log(result);
 			});
