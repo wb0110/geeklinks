@@ -1,4 +1,4 @@
-
+var assert = require('assert');
 var mongo = (function(){
 	var mongodb = require("mongodb"),
 		srv = new mongodb.Server('127.0.0.1', 27017);
@@ -18,7 +18,7 @@ var mongo = (function(){
 			if (error) throw error;
 			console.log('Connected to: ' + dbName);
 			db.collection(collectionName, function(error, collection){
-				if (error) throw error;
+				assert.notEqual(error, null);
 				var c = collection.find().sort(field).limit(1);
 				// {}, function(error, result){
 				// 	callback(error, result)
@@ -47,10 +47,10 @@ var mongo = (function(){
 		}
 		if (!callback) return;
 		connector.open(function(error, db){
-			if (error) throw error;
+			assert.notEqual(error, null);
 			console.log('Connected to: ' + dbName);
 			db.collection(collectionName, function(error, col){
-				if (error) throw error;
+				assert.notEqual(error, null);
 				col.find(query, {'id' : true}, function(error, cursor) {
 					if (error) return callback(error, null);
 					cursor.toArray(function(e, r){
@@ -67,7 +67,7 @@ var mongo = (function(){
 }());
 //////	TESTS.
 mongo.maxID('github', 'test', {'id': -1}, function(error, max){
-	if (error) {console.log(error)};
+	assert.notEqual(error, null);	
 	console.log('Max value: ');
 	console.log(max);
 });
