@@ -25,9 +25,6 @@ var mongo = (function(){
 			db.collection(collectionName, function(error, collection){
 				assert.equal(error, null);
 				var c = collection.find().sort(t).limit(1);
-				// {}, function(error, result){
-				// 	callback(error, result)
-				// });
 				c.nextObject(function(error, res){
 					callback(error, res);
 				});
