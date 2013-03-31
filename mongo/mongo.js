@@ -3,7 +3,7 @@ var mongo = (function(){
 	var mongodb = require("mongodb"),
 		srv = new mongodb.Server('127.0.0.1', 27017);
 
-	var maxID = function(dbName, collectionName, field, callback) {
+	var max = function(dbName, collectionName, field, callback) {
 		if (!dbName) {
 			if (!callback) throw 'mongo.max: Invalid Database Name.';
 			else return callback('mongo.max: Invalid Database Name.', null);
@@ -62,11 +62,11 @@ var mongo = (function(){
 	}
 	return {
 		find: find,
-		maxID: maxID
+		max: max
 	}
 }());
 //////	TESTS.
-mongo.maxID('github', 'test', {'id': -1}, function(error, max){
+mongo.max('github', 'test', {'id': -1}, function(error, max){
 	assert.notEqual(error, null);	
 	console.log('Max value: ');
 	console.log(max);
