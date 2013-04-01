@@ -18,6 +18,7 @@ httpRequest = {
 var main = (function() {
 	var init = function(){
 		if (app.init) return;
+		app.initTime = new Date().getTime();
 		app.init = true;
 		readNextFromDB(function(max){
 			if (max) max = max.next;
@@ -66,26 +67,31 @@ var main = (function() {
 			res.on('end', function(){
 				console.log('Response finished. Next: ' + next);
 				data = JSON.parse(data);
-				mongo.db.create(app.db, app.collection, data, scheduleNextFetchRequest);
+				mongo.db.create(app.db, app.collection, data, function(flag){
+					if (flag) scheduleNextFetchRequest();
+					else return;
 				});
+				// });
 			});
-		}).end();
-	}
-	var scheduleNextFetchRequest = function(){
+		});
+		req.end();
+	};
+	function scheduleNextFetchRequest() {
 		if (app.hasNext) {
-			mongo.db.create(app.db, app.fechInfoCollectionName, {
-				next: app.next,
-				timestamp: new Date().getTime()
-			}, 
-			function(){
+			var doc = {
+				'next': parseInt(app.next),
+				'benchmark': new Date().getTime() - app.initTime,
+				'timestamp': new Date().getTime()
+			};
+			// console.log(doc);
+			mongo.db.create(app.db, app.fechInfoCollectionName, [doc], function(){
 				createPath();
 				var time = parseInt(app.remaining) > 100 ? 0 : 4200000;
 				setTimeout(function(){
 					fetch();
-				}, time);	
-			}
+				}, time);				
+			});
 		}
-		return;
 	};
 	return {
 		init: init
