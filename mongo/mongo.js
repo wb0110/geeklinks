@@ -113,10 +113,24 @@ var db = (function(){
 			});
 		});	
 	};
+	var drop = function(dbName, callback) {
+		assert.notEqual(dbName, null);
+		var connector = new mongodb.Db(dbName, new mongodb.Server('127.0.0.1', 27017));
+		connector.open(function(err, db){
+			if (err) { throw err; }
+			db.dropDatabase(function(err) {
+				if (err) { throw err; }
+				console.log("database %s has been dropped!", dbName);
+				if (callback) callback();
+			});
+		});
+		connector.close();
+	};
 	return {
 		find: find,
 		max: max, 
 		create: create,
+		drop: drop,
 		removeAll: removeAll
 	}
 }());
@@ -134,16 +148,16 @@ var db = (function(){
 // db.removeAll('github', 'repos');
 
 
-// db.find('github', 'repos', {}, function(error, results){
+// db.find('github', 'users', {"id": 388}, function(error, results){
 // 		if (error) {console.log(error)};
 // 	for (var i in results) 
-// 		console.log(results[i].id);
+// 		//console.log(results[i].id);
 // 	console.log('Result: ');
 // 	console.log(results);
 // }); 
 
 
-
+db.drop('github');
 
 
 
