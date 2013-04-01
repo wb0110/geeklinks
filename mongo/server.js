@@ -67,13 +67,11 @@ var main = (function() {
 			res.on('end', function(){
 				console.log('Response finished. Next: ' + next);
 				data = JSON.parse(data);
-				mongo.db.create(app.db, app.collection, data, function(flag){
-					if (flag) {
+				fetchRepoLanguage(data, function(){
+					mongo.db.create(app.db, app.collection, data, function(){
 						setTimeout(scheduleNextFetchRequest, 0);
-					}
-					else return;
+					});
 				});
-				// });
 			});
 		});
 		req.end();
