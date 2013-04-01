@@ -8,12 +8,12 @@ var https = require('https'),
 httpRequest = {
 	hostname: 'api.github.com', 
 	method: 'GET',
-	path: '/repositories',
+	path: '/users',
 	headers : {'Authorization': 'Basic ' + new Buffer(u + ':' + p).toString('base64')}
 }; app = {
 	db: 'github',
-	fechInfoCollectionName: 'repos_fetch_info',
-	collection:  'repos'
+	fechInfoCollectionName: 'users_fetch_info',
+	collection:  'users'
 };
 var main = (function() {
 	var init = function(){
@@ -68,7 +68,9 @@ var main = (function() {
 				console.log('Response finished. Next: ' + next);
 				data = JSON.parse(data);
 				mongo.db.create(app.db, app.collection, data, function(flag){
-					if (flag) scheduleNextFetchRequest();
+					if (flag) {
+						setTimeout(scheduleNextFetchRequest, 0);
+					}
 					else return;
 				});
 				// });
