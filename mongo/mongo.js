@@ -1,5 +1,5 @@
 var assert = require('assert'),
-	mongodb = require("mongodb");
+	mongodb = require('mongodb');
 var db = (function(){
 	var max = function(dbName, collectionName, field, callback) {
 		srv = new mongodb.Server('127.0.0.1', 27017);
@@ -63,6 +63,7 @@ var db = (function(){
 			});
 		});
 	};
+	// var srv = ;
 	var create = function(dbName, collectionName, doc, callback) {
 		if (!dbName) {
 			if (!callback) throw 'mongo.find: Invalid Database Name.';
@@ -79,14 +80,15 @@ var db = (function(){
 		}
 		if (!callback) return;
 
-		srv = new mongodb.Server('127.0.0.1', 27017);
-		var connector = new mongodb.Db(dbName, srv, {safe:false});	
+		var connector = new mongodb.Db(dbName, new mongodb.Server('127.0.0.1', 27017), 
+			{safe:false, w: -1});	
 		connector.open(function(error, db){
 			assert.equal(error, null);
 			console.log('Create: Connected to: ' + dbName);
 			db.collection(collectionName, function(error, col){
 				assert.equal(error, null);
 				col.insert(doc);
+				connector.close();
 				return callback(true);
 			});
 		});
@@ -134,9 +136,11 @@ var db = (function(){
 
 // db.find('github', 'repos', {}, function(error, results){
 // 		if (error) {console.log(error)};
+// 	for (var i in results) 
+// 		console.log(results[i].id);
 // 	console.log('Result: ');
 // 	console.log(results);
-// });
+// }); 
 
 
 
