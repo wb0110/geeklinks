@@ -21,7 +21,7 @@ var db = (function(){
 		if (!callback) return;
 		connector.open(function(error, db){
 			if (error) throw error;
-			console.log('Connected to: ' + dbName);
+			console.log('Max: Connected to: ' + dbName);
 			db.collection(collectionName, function(error, collection){
 				assert.equal(error, null);
 				var c = collection.find().sort(t).limit(1);
@@ -51,10 +51,10 @@ var db = (function(){
 		if (!callback) return;
 		connector.open(function(error, db){
 			assert.equal(error, null);
-			console.log('Connected to: ' + dbName);
+			console.log('Find: Connected to: ' + dbName);
 			db.collection(collectionName, function(error, col){
 				assert.equal(error, null);
-				col.find(query, {'id' : true}, function(error, cursor) {
+				col.find(query, function(error, cursor) {
 					if (error) return callback(error, null);
 					cursor.toArray(function(e, r){
 						return callback(null, r);
@@ -63,30 +63,31 @@ var db = (function(){
 			});
 		});
 	};
-	var create = function(dbName, collectionName, docs, callback) {
-		srv = new mongodb.Server('127.0.0.1', 27017);
+	var create = function(dbName, collectionName, doc, callback) {
 		if (!dbName) {
 			if (!callback) throw 'mongo.find: Invalid Database Name.';
 			else return callback('mongo.find: Invalid Database Name.', null);
 		}
-		var connector = new mongodb.Db(dbName, srv);
 		if (!collectionName) {
 			if (!callback) throw 'mongo.find: Invalid Collection Name.';
 			else return callback('mongo.find: Invalid Collection Name.', null);
 		}
-		if (!docs) {
+		if (!doc) {
 			if (!callback)
 				throw 'mongo.find: Invalid documents to be inserted.';
 			else return callback('mongo.find: Invalid documents to be inserted.', null);
 		}
 		if (!callback) return;
+
+		srv = new mongodb.Server('127.0.0.1', 27017);
+		var connector = new mongodb.Db(dbName, srv, {safe:false});	
 		connector.open(function(error, db){
 			assert.equal(error, null);
-			console.log('Connected to: ' + dbName);
+			console.log('Create: Connected to: ' + dbName);
 			db.collection(collectionName, function(error, col){
 				assert.equal(error, null);
-				for (var i in docs) col.insert(docs[i]);
-				return callback();
+				col.insert(doc);
+				return callback(true);
 			});
 		});
 	}
@@ -103,7 +104,7 @@ var db = (function(){
 		}
 		connector.open(function(error, db){
 			assert.equal(error, null);
-			console.log('Connected to: ' + dbName);
+			console.log('RemoveAll: Connected to: ' + dbName);
 			db.collection(collectionName, function(error, col){
 				assert.equal(error, null);
 				col.remove();
@@ -118,15 +119,29 @@ var db = (function(){
 	}
 }());
 //////	TESTS.
+
+
 // db.max('github', 'repos_fetch_info', 'next', function(error, max){
 // 	assert.equal(error, null);	
 // 	console.log('Max value: ');
 // 	console.log(max);
 // });
-//db.removeAll('github', 'repos');
+
+
+// db.removeAll('github', 'repos_fetch_info');
+// db.removeAll('github', 'repos');
+
+
 // db.find('github', 'repos', {}, function(error, results){
 // 		if (error) {console.log(error)};
 // 	console.log('Result: ');
 // 	console.log(results);
 // });
+
+
+
+
+
+
+
 exports.db = db;
