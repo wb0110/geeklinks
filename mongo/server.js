@@ -8,12 +8,13 @@ var https = require('https'),
 httpRequest = {
 	hostname: 'api.github.com', 
 	method: 'GET',
-	path: '/users',
 	headers : {'Authorization': 'Basic ' + new Buffer(u + ':' + p).toString('base64')}
 }; app = {
+	path: '/repositories', //repositories
+	pathNext: '/repositories?since=',
 	db: 'github',
-	fechInfoCollectionName: 'users_fetch_info',
-	collection:  'users'
+	fechInfoCollectionName: 'repositories_fetch_info',
+	collection:  'repositories'
 };
 var main = (function() {
 	var init = function(){
@@ -44,8 +45,8 @@ var main = (function() {
 	}
 	var createPath = function(callback) {
 		if (!app.hasNext) return; 
-		if (!app.next) httpRequest.path = '/repositories';
-		else httpRequest.path = '/repositories?since=' + app.next; 
+		if (!app.next) httpRequest.path = app.path;
+		else httpRequest.path = app.pathNext + app.next; 
 		if (callback) return callback();
 	};
 	var fetch = function() {
@@ -67,10 +68,11 @@ var main = (function() {
 			res.on('end', function(){
 				console.log('Response finished. Next: ' + next);
 				data = JSON.parse(data);
-				fetchRepoLanguage(data, function(){
-					mongo.db.create(app.db, app.collection, data, function(){
-						setTimeout(scheduleNextFetchRequest, 0);
-					});
+				fetchSubDocument(data, 'languages_url', 'languages', function(data){
+					console.log(data[0]['languages'])
+					// mongo.db.create(app.db, app.collection, data, function(){
+					// 	setTimeout(scheduleNextFetchRequest, 0);
+					// });
 				});
 			});
 		});
@@ -90,6 +92,22 @@ var main = (function() {
 				setTimeout(function(){
 					fetch();
 				}, time);				
+			});
+		}
+	};
+	var fetchSubDocument = function(data, field, newField, callback){
+		if (!data) throw 'fetchSubDocument needs data.';
+		if (!field) throw 'fetchSubDocument needs field.';
+		if (!callback || typeof callback !== 'function') throw 'fetchSubDocument needs a callback.';
+		for (var i = 0; i < data.length; ++i) {
+			https.get(data[i][field], function(res) {
+				res.on('data', function(d) {
+					d = JSON.parse(d);
+					data[i][newField] = d;
+					if (i == data.length - 1) return callback(data);
+				});
+			}).on('error', function(e) {
+				throw 'fetchSubDocument https.get: ' + e;
 			});
 		}
 	};
