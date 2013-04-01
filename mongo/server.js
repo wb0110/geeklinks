@@ -99,16 +99,23 @@ var main = (function() {
 		if (!data) throw 'fetchSubDocument needs data.';
 		if (!field) throw 'fetchSubDocument needs field.';
 		if (!callback || typeof callback !== 'function') throw 'fetchSubDocument needs a callback.';
+		console.log(data[0]);
 		for (var i = 0; i < data.length; ++i) {
-			https.get(data[i][field], function(res) {
-				res.on('data', function(d) {
-					d = JSON.parse(d);
-					data[i][newField] = d;
-					if (i == data.length - 1) return callback(data);
-				});
-			}).on('error', function(e) {
-				throw 'fetchSubDocument https.get: ' + e;
-			});
+			(function(i){
+				setTimeout(function(){
+					https.get(data[i][field], function(res) {
+						res.on('data', function(d) {
+							d = JSON.parse(d);
+							data[i][newField] = d;
+							console.log(d);
+							console.log(data[i][field]);
+							if (i == data.length - 1) return callback(data);
+						});
+					}).on('error', function(e) {
+						throw 'fetchSubDocument https.get: ' + e;
+					});
+				}, i * 1000);	
+			}(i));
 		}
 	};
 	return {
