@@ -10,11 +10,11 @@ httpRequest = {
 	method: 'GET',
 	headers : {'Authorization': 'Basic ' + new Buffer(u + ':' + p).toString('base64')}
 }; app = {
-	path: '/repositories', //repositories
-	pathNext: '/repositories?since=',
+	path: '/users', //users
+	pathNext: '/users?since=',
 	db: 'github',
-	fechInfoCollectionName: 'repositories_fetch_info',
-	collection:  'repositories'
+	fechInfoCollectionName: 'users_fetch_info',
+	collection:  'users'
 };
 var main = (function() {
 	var init = function(){
@@ -68,8 +68,9 @@ var main = (function() {
 			res.on('end', function(){
 				console.log('Response finished. Next: ' + next);
 				data = JSON.parse(data);
+				console.log(data)
 				fetchSubDocument(data, 'languages_url', 'languages', function(data){
-					console.log(data[0]['languages'])
+					//console.log(data[0]['languages'])
 					// mongo.db.create(app.db, app.collection, data, function(){
 					// 	setTimeout(scheduleNextFetchRequest, 0);
 					// });
@@ -101,26 +102,31 @@ var main = (function() {
 		if (!callback || typeof callback !== 'function') throw 'fetchSubDocument needs a callback.';
 		console.log(data[0]);
 		for (var i = 0; i < data.length; ++i) {
-			(function(i){
-				setTimeout(function(){
-					https.get(data[i][field], function(res) {
-						res.on('data', function(d) {
-							d = JSON.parse(d);
-							data[i][newField] = d;
-							console.log(d);
-							console.log(data[i][field]);
-							if (i == data.length - 1) return callback(data);
-						});
-					}).on('error', function(e) {
-						throw 'fetchSubDocument https.get: ' + e;
-					});
-				}, i * 1000);	
-			}(i));
+				console.log(data)
+			// (function(i){
+				// setTimeout(function(){
+					// https.get(data[i][field], function(res) {
+					// 	res.on('data', function(d) {
+					// 		d = JSON.parse(d);
+					// 		data[i][newField] = d;
+					// 		console.log(d);
+					// 		console.log(data[i][field]);
+					// 		if (i == data.length - 1) return callback(data);
+					// 	});
+					// }).on('error', function(e) {
+					// 	throw 'fetchSubDocument https.get: ' + e;
+					// });
+				// }, i == 0 ? 1000 : i * 1000);	
+			// }(i));
 		}
 	};
 	return {
-		init: init
+		init: init,
+		fetch: fetch
 	}
 }());
-
-main.init();
+httpRequest.path = app.path;
+// console.log(app);
+// console.log(httpRequest);
+main.fetch()
+//main.init();
