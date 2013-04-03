@@ -1,3 +1,10 @@
+/*****************************************************************
+**************	Created by Amir Moravej					***************
+**************	Copyrights (c) 2013 Amir Moravej.	***************
+**************	All rights reserved.						***************
+**************	Contact: amir@doob.in					***************
+******************************************************************/
+
 var https = require('https'),
 	config = require('./config.js'),
 	couch = require('./couch/couch.js'),

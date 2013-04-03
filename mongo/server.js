@@ -1,3 +1,10 @@
+/*****************************************************************
+**************	Created by Amir Moravej					***************
+**************	Copyrights (c) 2013 Amir Moravej.	***************
+**************	All rights reserved.						***************
+**************	Contact: amir@doob.in					***************
+******************************************************************/
+
 var https = require('https'),
 	assert = require('assert'),
 	mongo = require('./mongo.js'),
@@ -102,7 +109,7 @@ var main = (function() {
 		if (!callback || typeof callback !== 'function') throw 'fetchSubDocument needs a callback.';
 		console.log(data[0]);
 		for (var i = 0; i < data.length; ++i) {
-				console.log(data)
+				//console.log(data)
 			// (function(i){
 				// setTimeout(function(){
 					// https.get(data[i][field], function(res) {
