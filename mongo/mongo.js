@@ -141,33 +141,6 @@ var db = (function(){
 		drop: drop,
 		removeAll: removeAll
 	}
-}());
-//////	TESTS.
-
-
-// db.max('github', 'repos_fetch_info', 'next', function(error, max){
-// 	assert.equal(error, null);	
-// 	console.log('Max value: ');
-// 	console.log(max);
-// });
-
-
-// db.removeAll('github', 'repos_fetch_info');
-// db.removeAll('github', 'repos');
-
-
-// db.find('github', 'users', {"id": 388}, function(error, results){
-// 		if (error) {console.log(error)};
-// 	for (var i in results) 
-// 		//console.log(results[i].id);
-// 	console.log('Result: ');
-// 	console.log(results);
-// }); 
-
-
-db.drop('github');
-
-
-
+}()); 
 
 exports.db = db;
