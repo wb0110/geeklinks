@@ -6,13 +6,15 @@
 //  Copyright (c) 2013 Amir Moravej. All rights reserved.
 //
 
+#include "/Users/Amir/Downloads/mongo-cxx-driver-nightly/mongo/client/dbclient.h"
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <cstdlib>
 using namespace std;
 
 int main(int argc, const char * argv[])
-{    
+{
     long begin, end;
     string line, stemp, city, cityAccent, region, pop, lat, lon;
     ifstream file;
@@ -74,6 +76,6 @@ int main(int argc, const char * argv[])
     
     return 0;
 }
- /**/
+/**/
 
 
