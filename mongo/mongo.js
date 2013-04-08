@@ -9,6 +9,7 @@
 var assert = require('assert'),
 	mongodb = require('mongodb');
 exports.db = (function(){
+	var databases = ['utils', 'github'];
 	var max = function(dbName, collectionName, field, callback) {
 		srv = new mongodb.Server('127.0.0.1', 27017);
 		if (!dbName) {
@@ -73,10 +74,12 @@ exports.db = (function(){
 	};
 	// var srv = ;
 	var create = (function(){
-			var connector = new mongodb.Db('utils', new mongodb.Server('127.0.0.1', 27017), 
-			{safe:false, w: -1});
-			return function(dbName, collectionName, doc, callback) {
-			if (!dbName) {
+		var connectors = {}, dbs = {}, collections = {}, q = [];
+		for (var i = 0; i < databases.length; ++i)
+			connectors[databases[i]] = new mongodb.Db(databases[i], 
+				new mongodb.Server('127.0.0.1', 27017), {safe:false, w: -1});
+		return function(dbName, collectionName, doc, callback) {
+			if (!dbName || !connectors[dbName]) {
 				if (!callback) throw 'mongo.find: Invalid Database Name.';
 				else return callback('mongo.find: Invalid Database Name.', null);
 			}
@@ -88,18 +91,39 @@ exports.db = (function(){
 				if (!callback)
 					throw 'mongo.find: Invalid documents to be inserted.';
 				else return callback('mongo.find: Invalid documents to be inserted.', null);
-			}	
-			connector.open(function(error, db){
-				assert.equal(error, null);
-				console.log('Create: Connected to: ' + dbName);
-				db.collection(collectionName, function(error, col){
+			}
+			if (!dbs[dbName]) {
+				connectors[dbName].open(function(error, db){
 					assert.equal(error, null);
-					col.insert(doc);
-					connector.close();
-					if (callback && typeof callback === 'function') return callback(true);
-					return;
+					dbs[dbName] = db;
+					console.log('Create: Connected to: ' + dbName);
+					if (!collections[collectionName]) {
+						db.collection(collectionName, function(error, col){
+							assert.equal(error, null);
+							collections[collectionName] = col;
+							col.insert(doc);
+							connector.close();
+							if (callback && typeof callback === 'function') return callback(true);
+							return;
+						});
+					} else {
+
+					}
 				});
-			});
+			} else {
+				if (!collections[collectionName]) {
+					dbs[dbName].scollection(collectionName, function(error, col){
+						assert.equal(error, null);
+						collections[collectionName] = col;
+						col.insert(doc);
+						connector.close();
+						if (callback && typeof callback === 'function') return callback(true);
+						return;
+					});
+				} else {
+					collections[collectionName].insert(doc);
+				}
+			}	
 		}
 	}());
 	var removeAll = function(dbName, collectionName) {
