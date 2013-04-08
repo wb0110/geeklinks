@@ -72,34 +72,36 @@ exports.db = (function(){
 		});
 	};
 	// var srv = ;
-	var create = function(dbName, collectionName, doc, callback) {
-		if (!dbName) {
-			if (!callback) throw 'mongo.find: Invalid Database Name.';
-			else return callback('mongo.find: Invalid Database Name.', null);
-		}
-		if (!collectionName) {
-			if (!callback) throw 'mongo.find: Invalid Collection Name.';
-			else return callback('mongo.find: Invalid Collection Name.', null);
-		}
-		if (!doc) {
-			if (!callback)
-				throw 'mongo.find: Invalid documents to be inserted.';
-			else return callback('mongo.find: Invalid documents to be inserted.', null);
-		}
-		var connector = new mongodb.Db(dbName, new mongodb.Server('127.0.0.1', 27017), 
-			{safe:false, w: -1});	
-		connector.open(function(error, db){
-			assert.equal(error, null);
-			console.log('Create: Connected to: ' + dbName);
-			db.collection(collectionName, function(error, col){
+	var create = (function(){
+			var connector = new mongodb.Db('utils', new mongodb.Server('127.0.0.1', 27017), 
+			{safe:false, w: -1});
+			return function(dbName, collectionName, doc, callback) {
+			if (!dbName) {
+				if (!callback) throw 'mongo.find: Invalid Database Name.';
+				else return callback('mongo.find: Invalid Database Name.', null);
+			}
+			if (!collectionName) {
+				if (!callback) throw 'mongo.find: Invalid Collection Name.';
+				else return callback('mongo.find: Invalid Collection Name.', null);
+			}
+			if (!doc) {
+				if (!callback)
+					throw 'mongo.find: Invalid documents to be inserted.';
+				else return callback('mongo.find: Invalid documents to be inserted.', null);
+			}	
+			connector.open(function(error, db){
 				assert.equal(error, null);
-				col.insert(doc);
-				connector.close();
-				if (callback && typeof callback === 'function') return callback(true);
-				return;
+				console.log('Create: Connected to: ' + dbName);
+				db.collection(collectionName, function(error, col){
+					assert.equal(error, null);
+					col.insert(doc);
+					connector.close();
+					if (callback && typeof callback === 'function') return callback(true);
+					return;
+				});
 			});
-		});
-	}
+		}
+	}());
 	var removeAll = function(dbName, collectionName) {
 	srv = new mongodb.Server('127.0.0.1', 27017);
 		if (!dbName) {
