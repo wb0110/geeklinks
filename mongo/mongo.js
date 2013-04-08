@@ -8,7 +8,7 @@
 */
 var assert = require('assert'),
 	mongodb = require('mongodb');
-var db = (function(){
+exports.db = (function(){
 	var max = function(dbName, collectionName, field, callback) {
 		srv = new mongodb.Server('127.0.0.1', 27017);
 		if (!dbName) {
@@ -33,7 +33,7 @@ var db = (function(){
 				assert.equal(error, null);
 				var c = collection.find().sort(t).limit(1);
 				c.nextObject(function(error, res){
-					if (callback) return callback(error, res);
+					if (callback && typeof callback === 'function') return callback(error, res);
 					return res;
 				});
 			});
@@ -51,10 +51,10 @@ var db = (function(){
 			if (!callback) throw 'mongo.find: Invalid Collection Name.';
 			else return callback('mongo.find: Invalid Collection Name.', null);
 		}
-		if (!query) {
-			if (!callback)
-				throw 'mongo.find: Invalid Query.';
-			else return callback('mongo.find: Invalid Query.', null);
+		if (!query) query = {};
+		else if (typeof query === 'function') {
+			callback = query;
+			query = {};
 		}
 		connector.open(function(error, db){
 			assert.equal(error, null);
@@ -64,7 +64,7 @@ var db = (function(){
 				col.find(query, function(error, cursor) {
 					if (error) return callback(error, null);
 					cursor.toArray(function(e, r){
-						if (callback) return callback(null, r);
+						if (callback && typeof callback === 'function') return callback(null, r);
 						return r;
 					});
 				});
@@ -95,7 +95,7 @@ var db = (function(){
 				assert.equal(error, null);
 				col.insert(doc);
 				connector.close();
-				if (callback) return callback(true);
+				if (callback && typeof callback === 'function') return callback(true);
 				return;
 			});
 		});
@@ -128,7 +128,8 @@ var db = (function(){
 			db.dropDatabase(function(err) {
 				if (err) { throw err; }
 				console.log("database %s has been dropped!", dbName);
-				if (callback) callback();
+				if (callback && typeof callback === 'function') callback(err);
+				return;
 			});
 		});
 		connector.close();
@@ -141,5 +142,3 @@ var db = (function(){
 		removeAll: removeAll
 	}
 }()); 
-
-exports.db = db;
