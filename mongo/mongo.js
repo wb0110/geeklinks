@@ -26,7 +26,6 @@ var db = (function(){
 		}
 		var t = {};
 		t[field] = -1;
-		if (!callback) return;
 		connector.open(function(error, db){
 			if (error) throw error;
 			console.log('Max: Connected to: ' + dbName);
@@ -34,7 +33,8 @@ var db = (function(){
 				assert.equal(error, null);
 				var c = collection.find().sort(t).limit(1);
 				c.nextObject(function(error, res){
-					callback(error, res);
+					if (callback) return callback(error, res);
+					return res;
 				});
 			});
 		});
@@ -56,7 +56,6 @@ var db = (function(){
 				throw 'mongo.find: Invalid Query.';
 			else return callback('mongo.find: Invalid Query.', null);
 		}
-		if (!callback) return;
 		connector.open(function(error, db){
 			assert.equal(error, null);
 			console.log('Find: Connected to: ' + dbName);
@@ -65,7 +64,8 @@ var db = (function(){
 				col.find(query, function(error, cursor) {
 					if (error) return callback(error, null);
 					cursor.toArray(function(e, r){
-						return callback(null, r);
+						if (callback) return callback(null, r);
+						return r;
 					});
 				});
 			});
@@ -86,8 +86,6 @@ var db = (function(){
 				throw 'mongo.find: Invalid documents to be inserted.';
 			else return callback('mongo.find: Invalid documents to be inserted.', null);
 		}
-		if (!callback) return;
-
 		var connector = new mongodb.Db(dbName, new mongodb.Server('127.0.0.1', 27017), 
 			{safe:false, w: -1});	
 		connector.open(function(error, db){
@@ -97,7 +95,8 @@ var db = (function(){
 				assert.equal(error, null);
 				col.insert(doc);
 				connector.close();
-				return callback(true);
+				if (callback) return callback(true);
+				return;
 			});
 		});
 	}
