@@ -10,21 +10,26 @@ var fs = require('fs'),
 	assert = require('assert'),
 	fpath = __dirname + '/' + 'cities.txt',
 	// Currently (April 2013) stability of ReadLine is: 2 -unstable.
-	readline = require('readline'), rd, flag = true, count = 0;
+	readline = require('readline'), 
+	line, foundCanada = false, carryOn = true, count = 0;
 
 fs.stat(fpath, function(err, stats){
 	assert.equal(err, null);
 	console.log(stats);
 });
 
-rd = readline.createInterface({
+line = readline.createInterface({
 	input: fs.createReadStream(fpath),
 	output: process.stdout,
 	terminal: false
 });
 
-rd.on('line', function(l){
+line.on('line', function(l){
 	console.log(l);
-	console.log(++count);
-	assert.notEqual(count, 10);
+	var country = l.substr(0, 2);
+	if (!foundCanada && country == 'ca') foundCanada = true;
+	if (foundCanada && country != 'ca') carryOn = false; 
+
+	assert.equal(carryOn, true);
+	// assert.notEqual(count, 3);
 });
